@@ -3,13 +3,14 @@ import { IPrintOrdersProps } from "./IPrintOrdersProps";
 import { WebPartContext } from "@microsoft/sp-webpart-base";
 import { SPFI, spfi, SPFx } from "@pnp/sp/presets/all";
 import {
+  DefaultButton,
   TextField,
-  Link,
   ITextFieldStyles,
   Spinner,
   SpinnerSize,
 } from "office-ui-fabric-react";
 import DataTable from "react-data-table-component";
+import * as print from "print-js";
 
 let _sp: SPFI = null;
 
@@ -74,14 +75,23 @@ export default class PrintOrders extends React.Component<
         minWidth: "150px",
         maxWidth: "300px",
         selector: (row: any) => {
-          const file = row.LinkTitle.substring(
-            row.LinkTitle.lastIndexOf("/") + 1
-          );
+          const handlePrint = (e: any): any => {
+            e.preventDefault();
+            print({
+              printable: row.LinkTitle,
+              type: "pdf",
+              showModal: true,
+              modalMessage: "Cargando Documento...",
+              onError: (error) => {
+                alert(`Error found => ${error.message}`);
+              },
+            });
+          };
 
           return (
-            <Link href={row.LinkTitle} target="_blank">
-              {file}
-            </Link>
+            <>
+              <DefaultButton text="Imprimir" onClick={(e) => handlePrint(e)} />
+            </>
           );
         },
       },
